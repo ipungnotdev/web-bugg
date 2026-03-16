@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Systemcrasher X NullXTeam</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000;
+    --panel:#141b29;
+    --text:#eaeef7;
+    --muted:#aeb6c7;
+    --shadow:0 10px 30px rgba(0,0,0,.55);
+    --glow:0 0 12px rgba(255,255,255,.65);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;font-family:'Inter',sans-serif;
+    background:var(--bg);color:var(--text);
+    display:flex;flex-direction:column;align-items:center;
+  }
+
+  /* Top bar */
+  .top{
+    position:sticky;top:0;width:100%;
+    padding:18px 16px 10px;
+    background:linear-gradient(180deg,rgba(6,9,14,.75),rgba(6,9,14,0));
+    backdrop-filter:blur(4px);z-index:5;
+  }
+  .top h1{margin:0;text-align:center;font-weight:800;font-size:28px;text-shadow:var(--glow)}
+
+  /* Container */
+  .wrap{width:100%;max-width:780px;padding:10px 18px 90px;}
+  .center{display:flex;flex-direction:column;align-items:center}
+
+  /* Logo */
+  .logo{
+    width:72%;max-width:420px;aspect-ratio:1/1;
+    border-radius:16px;object-fit:cover;
+    margin:14px auto 8px;box-shadow:var(--shadow);
+  }
+  .title{text-align:center;margin-top:10px;font-weight:800;font-size:42px;text-shadow:var(--glow)}
+  .channel{margin-top:10px;text-align:center;color:var(--muted);font-weight:600}
+
+  /* Card */
+  .card{
+    margin:20px auto 0;width:100%;
+    background:var(--panel);border-radius:var(--radius);
+    padding:18px;box-shadow:var(--shadow);
+  }
+  .card h3{margin:0 0 12px;font-size:24px;font-weight:800;text-shadow:var(--glow)}
+  .card p{margin:8px 0;color:#dbe3f9}
+  .hint{color:var(--muted);font-weight:700}
+
+  /* Video */
+  .video-box{margin-top:14px;overflow:hidden;border-radius:16px;background:#0b0f18;box-shadow:var(--shadow)}
+  video{width:100%;height:auto;display:block}
+
+  /* Bottom nav */
+  .nav{
+    position:fixed;bottom:0;left:0;right:0;
+    background:linear-gradient(180deg,rgba(10,14,22,0),rgba(10,14,22,.92) 25%,rgba(10,14,22,.98));
+    padding:14px 24px 18px;z-index:50;
+  }
+  .nav-inner{
+    max-width:780px;margin:0 auto;display:flex;justify-content:space-between;gap:16px;
+    background:rgba(20,27,41,.9);border-radius:22px;padding:12px 18px;box-shadow:var(--shadow);
+  }
+  .nav a{flex:1;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700}
+  .nav .ico{width:26px;height:26px;opacity:.95;filter:drop-shadow(0 0 6px rgba(255,255,255,.18))}
+  .nav span{font-size:14px}
+
+  .dots:before{
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);
+    background-size:12px 12px;opacity:.35;
+    mask-image:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9));
+  }
+
+  /* Bug Panel */
+  .bug-panel {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    transform: translateY(100%);
+    transition: transform .35s ease;
+    z-index: 999;
+  }
+  .bug-panel.active {transform: translateY(0);}
+  .panel-content {
+    width: 100%;
+    max-width: 500px;
+    background: var(--panel);
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    box-shadow: 0 -6px 20px rgba(0,0,0,.6);
+  }
+  .panel-content h3 {
+    margin: 0 0 14px;
+    font-weight: 800;
+    font-size: 20px;
+    text-align: center;
+  }
+  .panel-content ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .panel-content ul li {
+    padding: 14px;
+    background: #0d121c;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background .25s;
+  }
+  .panel-content ul li:hover {background: #1d2739;}
+  .panel-content .close-btn {
+    text-align: center;
+    margin-top: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  /* Role Overlay */
+  .overlay{
+    position:fixed;inset:0;background:var(--bg);
+    transform:translateY(100%);transition:transform .45s ease;
+    z-index:40;overflow-y:auto;
+    display:flex;flex-direction:column;align-items:center;
+    padding-bottom:100px;
+  }
+  .overlay.active{transform:translateY(0)}
+  .form-box{
+    width:100%;max-width:500px;
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:20px;margin-top:20px
+  }
+  .form-box input{
+    width:100%;
+    padding:14px 12px;
+    margin:10px 0;
+    border:none;
+    border-radius:12px;
+    background:#0d121c;
+    color:var(--text);
+    font-size:16px;
+    outline:none;
+  }
+  .form-box input:focus{
+    box-shadow:0 0 0 2px rgba(255,255,255,0.2);
+  }
+  .form-box button{
+    width:100%;padding:14px;margin-top:10px;
+    background:#fff;color:#000;font-weight:700;
+    border:none;border-radius:12px;cursor:pointer;font-size:16px;
+  }
+  .form-box button:hover{background:#eaeaea}
+
+  /* POPUP on Home */
+  .home-popup-wrap{
+    position: fixed;
+    inset: 0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: rgba(0,0,0,0.75);
+    z-index: 9999;
+    padding: 20px;
+  }
+  .home-popup{
+    width:100%;
+    max-width:520px;
+    background:#060708;
+    border-radius:16px;
+    padding:22px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.7);
+    text-align:center;
+    color:var(--text);
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  .home-popup h3{margin:0 0 12px;font-size:20px;font-weight:800}
+  .home-popup p{color:var(--muted);font-weight:700;margin-bottom:18px;line-height:1.4}
+  .home-popup .btns{display:flex;gap:10px;justify-content:center}
+  .btn{
+    padding:12px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:800;
+  }
+  .btn.developer{background:#fff;color:#000}
+  .btn.back{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--text)}
+
+  @media (max-width:420px){
+    .home-popup{padding:16px}
+  }
+  #trackResult div {
+  background:#0d121c;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:6px;
+}
+/* ---- New Role Grid ---- */
+.role-grid{
+  width:90%;
+  max-width:480px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  margin:16px auto 6px;
+}
+.role-box{
+  background:#0b0f18;
+  border:1px solid rgba(255,255,255,0.03);
+  border-radius:14px;
+  padding:22px;
+  text-align:center;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:transform .12s ease, background .12s;
+  user-select:none;
+}
+.role-box:hover{transform:translateY(-6px)}
+.role-box .label{display:block;font-weight:800;font-size:18px;margin-top:8px;color:var(--muted)}
+.role-box .sub{font-size:13px;color:#8ea3b9;margin-top:6px}
+</style>
+</head>
+<body>
+  <!-- MAIN CONTENT (auto visible) -->
+  <div id="mainContent">
+    <div class="top"><h1>Home</h1></div>
+    <div class="wrap dots">
+      <div class="center">
+        <img class="logo" src="https://files.catbox.moe/78ie6t.jpg" alt="Logo"/>
+        <div class="title">Systemcrasher X NullXTeam</div>
+        <div class="channel">Channel : @NewTestiOrzaa</div>
+        <section class="card">
+          <h3>Credits:</h3>
+          <p>@OrzaaSystem &lt; Developer &gt;</p>
+          <p>@NewTestiOrzaa &lt; My Channel &gt;</p>
+          <p>@NullXTeam &lt; Supported &gt;</p>
+          <p class="hint">Applications Bugs WhatsApp</p>
+          <div class="video-box">
+            <video autoplay muted loop playsinline controlslist="nodownload noplaybackrate">
+              <source src="https://files.catbox.moe/j3tqp6.mp4" type="video/mp4">
+            </video>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Attack Overlay -->
+    <div id="attackPage" class="overlay dots">
+      <div class="top"><h1>Attack</h1></div>
+      <div class="center">
+        <img class="logo" src="https://files.catbox.moe/78ie6t.jpg"/>
+        <div class="title">Systemcrasher X NullXTeam</div>
+        <div class="channel">Channel : @NewTestiOrzaa</div>
+        <div class="form-box">
+          <input type="text" placeholder="INPUT NUMBER (EX: 62XXX)"/>
+          <!-- Trigger input for bug panel -->
+          <input type="text" id="bugTrigger" placeholder="TYPE BUG" readonly/>
+          <button>SEND BUGS</button>
+        </div>
+        <div class="close-btn" id="closeAttack">BACK</div>
+      </div>
+    </div>
+
+    <!-- Bug Panel -->
+    <div id="bugPanel" class="bug-panel">
+      <div class="panel-content">
+        <h3>Bug Type</h3>
+        <ul>
+          <li data-value="IOS">BUG IOS</li>
+          <li data-value="DELAY">BUG DELAY</li>
+          <li data-value="ANDRO">BUG ANDROID</li>
+        </ul>
+        <div class="close-btn" id="closePanel">BACK</div>
+      </div>
+    </div>
+
+    <!-- Role Overlay (modified) -->
+    <div id="rolePage" class="overlay dots">
+      <div class="top"><h1>Tools</h1></div>
+      <div class="center" style="width:100%;">
+
+        <!-- NEW: role grid with 4 boxes instead of 2026 block -->
+        <div class="card" style="width:90%; text-align:center; padding:20px 14px;">
+          <div style="font-size:20px; font-weight:800; margin-bottom:8px;">TOOLS SERVER</div>
+          <div style="color:var(--muted); font-weight:600; margin-bottom:12px;">Systemcrasher X NullXTeam</div>
+
+          <div class="role-grid">
+            <div class="role-box" id="ipTrack">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm1 11h-2V7h2v6zm0 4h-2v-2h2v2z"/></svg>
+              <span class="label">IP TRACK</span>
+              <span class="sub">TRACKING LOCATION</span>
+            </div>
+
+            <div class="role-box" id="spamNgl">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v2H3V3zm0 4h12v2H3V7zm0 4h12v2H3v-2zm0 4h12v2H3v-2z"/></svg>
+              <span class="label">GET CODE</span>
+              <span class="sub">MENGAMBIL CODE HTML WEBSITE</span>
+            </div>
+
+            <div class="role-box" id="numberTrackBox">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6c0-1.1-.9-2-2-2zm-8 14H8v-2h4v2zm8-4H8V8h12v6z"/></svg>
+              <span class="label">NUMBER TRACK</span>
+              <span class="sub">TRACKING VIA NUMBER</span>
+            </div>
+
+            <div class="role-box" id="downloadBox">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.34v6h6.66V9h3.34L12 2z"/></svg>
+             <div class="box" onclick="showPopup()">
+  DOWNLOAD
+</div>
+              <span class="sub">SOSIAL MEDIA DOWLOAD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- original tracking form removed from here (we put overlay below) -->
+
+        <div class="close-btn" id="closeRole">⬅ Back</div>
+      </div>
+    </div>
+    
+        <!-- NEW: Number Track Overlay (appears like Attack/Role overlay) -->
+    <div id="numberTrackOverlay" class="overlay dots">
+      <div class="top"><h1>NUMBER TRACKING</h1></div>
+      <div class="center">
+        <img class="logo" src="https://files.catbox.moe/78ie6t.jpg"/>
+        <div class="title">Systemcrasher X NullXTeam</div>
+        <div class="channel">Channel : @NewTestiOrzaa</div>
+
+        <div class="form-box">
+          <input type="text" id="ntTrackNumber" placeholder="ENTER NUMBER"/>
+          <button id="ntTrackBtn">TRACKING</button>
+        </div>
+
+        <div class="close-btn" id="closeNumberTrack">⬅ Back</div>
+      </div>
+    </div>
+
+<!-- NEW: IP Track Overlay -->
+<div id="ipTrackOverlay" class="overlay dots">
+  <div class="top"><h1>IP TRACKING</h1></div>
+  <div class="center">
+    <img class="logo" src="https://files.catbox.moe/78ie6t.jpg"/>
+    <div class="title">Systemcrasher X NullXTeam</div>
+    <div class="channel">Channel : @NewTestiOrzaa</div>
+
+    <div class="form-box">
+      <input type="text" id="ipTrackInput" placeholder="ENTER IP ADDRESS"/>
+      <button id="ipTrackBtn">TRACKING</button>
+    </div>
+
+    <div class="close-btn" id="closeIpTrack">⬅ Back</div>
+  </div>
+</div>
+
+<div id="trackPopup" class="home-popup-wrap" style="display:none;">
+  <div class="home-popup">
+    <h3>TRACKING RESULT</h3>
+    <div id="trackResult" style="text-align:left;max-height:300px;overflow-y:auto;margin:10px 0;font-weight:600;"></div>
+    <div class="btns">
+      <button class="btn back" id="closeTrack">BACK</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: black;
+  color: white;
+  padding: 20px 40px;
+  border-radius: 10px;
+  font-size: 20px;
+  text-align: center;
+  z-index: 9999;
+">
+  COMING SOON!!!
+</div>
+
+<!-- NEW: GET CODE Overlay -->
+<div id="getCodeOverlay" class="overlay dots">
+  <div class="top"><h1>GET HTML CODE</h1></div>
+  <div class="center">
+    <img class="logo" src="https://files.catbox.moe/78ie6t.jpg"/>
+    <div class="title">SystemCrasher</div>
+    <div class="channel">Channel : @NewTestiOrzaa</div>
+
+    <div class="form-box">
+      <input type="text" id="getCodeInput" placeholder="ENTER WEBSITE URL"/>
+      <button id="getCodeBtn">GET CODE</button>
+
+      <!-- COPY BUTTON (di bawah GET CODE) -->
+      <button id="copyCodeBtn" style="
+        display:none;
+        background:#00ffcc;
+        color:#000;
+        font-weight:700;
+        border:none;
+        padding:8px 12px;
+        border-radius:8px;
+        margin-top:8px;
+        cursor:pointer;
+      ">COPY CODE</button>
+
+      <!-- HASIL HTML -->
+      <pre id="codeResult" style="
+        background:#0d121c;
+        color:#00ffcc;
+        padding:10px;
+        border-radius:10px;
+        margin-top:12px;
+        max-height:250px;
+        overflow:auto;
+        white-space:pre-wrap;
+        word-break:break-all;
+        display:none;
+      "></pre>
+    </div>
+
+    <div class="close-btn" id="closeGetCode">⬅ Back</div>
+  </div>
+</div>
+
+    <!-- Bottom nav -->
+    <nav class="nav">
+      <div class="nav-inner">
+        <a href="#info"><svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm0 6.25a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5zM10.75 18a.75.75 0 0 1 0-1.5h.75V12h-.75a.75.75 0 0 1 0-1.5h2.5a.75.75 0 0 1 0 1.5H12v4.5h1.25a.75.75 0 0 1 0 1.5h-2.5z"/></svg><span>Info</span></a>
+        <a href="#access"><svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg><span>Tools User</span></a>
+        <a href="#attacked" id="openAttack"><svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94a7.971 7.971 0 0 0 .06-1 7.971 7.971 0 0 0-.06-1l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.28 7.28 0 0 0-1.72-1l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54a7.28 7.28 0 0 0-1.72 1l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.72a.5.5 0 0 0 .12.64l2.03 1.58a7.971 7.971 0 0 0-.06 1 7.971 7.971 0 0 0 .06 1l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.53.42 1.11.77 1.72 1l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.61-.23 1.19-.58 1.72-1l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5Z"/></svg><span>Attacked</span></a>
+      </div>
+    </nav>
+  </div>
+
+<!-- HOME KEY GATE (replaces popup) -->
+<div id="keyGate" class="home-popup-wrap">
+  <div class="home-popup video-container">
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="https://files.catbox.moe/bwmuju.mp4" type="video/mp4">
+    </video>
+
+    <div class="overlay-content">
+      <h3>SERVER VERIFY</h3>
+      <p>ENTER KEY</p>
+      <input id="accessKey" type="password" placeholder="SERVER KEY" style="
+        width:100%;background:none;border:none;border-bottom:2px solid #00f7ff;
+        color:white;padding:10px;font-size:16px;outline:none;text-align:center;margin-bottom:20px;">
+      
+      <div class="btns" style="margin-top:12px;">
+        <button class="btn developer" onclick="checkKey()">ENTER</button>
+        <button class="btn back" id="openBuyPage">BUY ACCOUNT</button>
+      </div>
+
+      <div id="keyError" style="color:red;margin-top:10px;font-weight:600;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BUY ACCOUNT PAGE -->
+<div id="buyPage" class="home-popup-wrap" style="display:none;">
+  <div class="home-popup" style="max-width:480px; background:#0a0d14;">
+    <h3 style="font-weight:800;">PRICE LIST</h3>
+    <div style="display:grid; grid-template-columns:1fr; gap:10px; margin:14px 0;">
+      <div style="background:#111726; padding:14px; border-radius:12px;">
+        <h4>Role Member</h4>
+        <p>Rp15.000</p>
+        <div class="btns">
+          <a href="https://t.me/OrzaaSystem" target="https://t.me/OrzaaSystem" class="btn developer">Chat Developer 1</a>
+          <a href="https://t.me/RaldzzXyz" target="https://t.me/RaldzzXyz" class="btn developer">Chat Developer 2</a>
+        </div>
+      </div>
+      <div style="background:#111726; padding:14px; border-radius:12px;">
+        <h4>Role Reseller</h4>
+        <p>Rp25.000</p>
+        <div class="btns">
+          <a href="https://t.me/OrzaaSystem" target="https://t.me/OrzaaSystem" class="btn developer">Chat Developer 1</a>
+          <a href="https://t.me/RaldzzXyz" target="https://t.me/RaldzzXyz" class="btn developer">Chat Developer 2</a>
+        </div>
+      </div>
+      <div style="background:#111726; padding:14px; border-radius:12px;">
+        <h4>Role PT</h4>
+        <p>Rp30.000</p>
+        <div class="btns">
+          <a href="https://t.me/OrzaaSystem" target="https://t.me/OrzaaSystem" class="btn developer">Chat Developer 1</a>
+          <a href="https://t.me/RaldzzXyz" target="https://t.me/RaldzzXyz" class="btn developer">Chat Developer 2</a>
+        </div>
+      </div>
+      <div style="background:#111726; padding:14px; border-radius:12px;">
+        <h4>Role CEO</h4>
+        <p>Rp40.000</p>
+        <div class="btns">
+          <a href="https://t.me/OrzaaSystem" target="https://t.me/OrzaaSystem" class="btn developer">Chat Developer 1</a>
+          <a href="https://t.me/RaldzzXyz" target="https://t.me/RaldzzXyz" class="btn developer">Chat Developer 2</a>
+        </div>
+      </div>
+      <div style="background:#111726; padding:14px; border-radius:12px;">
+        <h4>Role Owner</h4>
+        <p>Rp65.000</p>
+        <div class="btns">
+          <a href="https://t.me/OrzaaSystem" target="https://t.me/OrzaaSystem" class="btn developer">Chat Developer 1</a>
+          <a href="https://t.me/RaldzzXyz" target="https://t.me/RaldzzXyz" class="btn developer">Chat Developer 2</a>
+        </div>
+      </div>
+    </div>
+    <div class="btns">
+      <button class="btn back" id="closeBuyPage">BACK</button>
+    </div>
+  </div>
+</div>
+
+
+<style>
+/* --- asas video background --- */
+.video-container {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid black; /* garis key */
+  border-radius: 12px;
+}
+
+/* video auto-fit dalam box */
+.bg-video {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* muat penuh tanpa regang */
+  z-index: 0;
+  filter: brightness(0.4); /* gelapkan sikit supaya teks jelas */
+}
+
+/* isi overlay di atas video */
+.overlay-content {
+  position: relative;
+  z-index: 1;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+/* teks & butang */
+.overlay-content h3 {
+  margin-bottom: 10px;
+  color: white;
+  letter-spacing: 2px;
+}
+
+.overlay-content p {
+  margin-bottom: 10px;
+}
+
+.btns {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn {
+  background: rgba(0, 247, 255, 0.1);
+  border: 1px solid black;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background: white;
+  color: black;
+}
+</style>
+
+<script>
+  // --- Popup logic ---
+  const homePopup = document.getElementById('homePopup');
+  const backHomeBtn = document.getElementById('backHomeBtn');
+  const devBtn = document.getElementById('devBtn');
+
+  // show popup on load (already visible by default),
+  // but keep an option to remember choice if you want — currently always shows once per load
+  function closePopup(){
+    if(homePopup){
+      homePopup.style.display = 'none';
+    }
+  }
+
+  backHomeBtn && backHomeBtn.addEventListener('click', closePopup);
+
+  // Optional: if user navigates back to #access or #attacked and returns, popup stays closed.
+  // If you prefer to never show again per device, uncomment lines to use localStorage:
+  // localStorage.setItem('homePopupSeen','1');
+  // and check before showing.
+
+  // --- existing UI scripts (attack / bug / role) ---
+  const attackPage=document.getElementById("attackPage");
+  if(document.getElementById("openAttack")){
+    document.getElementById("openAttack").onclick=()=>attackPage.classList.add("active");
+  }
+  if(document.getElementById("closeAttack")){
+    document.getElementById("closeAttack").onclick=()=>attackPage.classList.remove("active");
+  }
+
+  // Bug panel
+  const bugTrigger = document.getElementById("bugTrigger");
+  const bugPanel = document.getElementById("bugPanel");
+  const closePanel = document.getElementById("closePanel");
+
+  if (bugTrigger) bugTrigger.onclick = () => bugPanel.classList.add("active");
+  if (closePanel) closePanel.onclick = () => bugPanel.classList.remove("active");
+
+  document.querySelectorAll("#bugPanel li").forEach(li => {
+    li.onclick = () => {
+      bugTrigger.value = li.dataset.value;
+      bugPanel.classList.remove("active");
+    }
+  });
+
+  // Overlay role
+  const rolePage=document.getElementById("rolePage");
+  const accessLink = document.querySelector('a[href="#access"]');
+  if(accessLink) accessLink.onclick=()=>rolePage.classList.add("active");
+  const closeRoleBtn = document.getElementById("closeRole");
+  if(closeRoleBtn) closeRoleBtn.onclick=()=>rolePage.classList.remove("active");
+  
+  const correctKey = "Orza Ganteng Bet"; // ubah ikut key sebenar awak
+  const keyGate = document.getElementById("keyGate");
+  const mainContent = document.getElementById("mainContent");
+
+  mainContent.style.display = "none"; // sembunyikan home masa awal
+
+  function checkKey() {
+    const input = document.getElementById("accessKey").value.trim();
+    const error = document.getElementById("keyError");
+    if (input === correctKey) {
+      keyGate.style.display = "none";
+      mainContent.style.display = "block";
+    } else {
+      error.textContent = "Password Salah, Silahkan Beli Akses Ke Telegram @OrzaaSystem !";
+    }
+  }
+
+  function backHome() {
+    document.getElementById("accessKey").value = "";
+    document.getElementById("keyError").textContent = "";
+  }
+  
+  // === Hantar ke server ===
+  const sendBtn = document.querySelector(".form-box button");
+  const numberInput = document.querySelector('.form-box input[type="text"]:first-child');
+  const bugInput = document.getElementById("bugTrigger");
+
+  const resultText = document.createElement("div");
+  resultText.style.marginTop = "10px";
+  resultText.style.fontWeight = "700";
+  resultText.style.textAlign = "center";
+  document.querySelector(".form-box").appendChild(resultText);
+
+  sendBtn.addEventListener("click", async () => {
+    const number = numberInput.value.trim();
+    const bug = bugInput.value.trim();
+
+    if (!number || !bug) {
+      resultText.textContent = "INPUT NUMBER!";
+      resultText.style.color = "orange";
+      return;
+    }
+
+    try {
+      sendBtn.disabled = true;
+      sendBtn.textContent = "SENDING...";
+
+      // === Hantar data JSON ke server ===
+      const res = await fetch(`/api/bug/${encodeURIComponent(bug)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ number })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        resultText.textContent = `✅ Bug "${bug}" telah dihantar ke nombor ${number}`;
+        resultText.style.color = "#00ff99";
+      } else {
+        resultText.textContent = `❌ Gagal: ${data.error || "Ralat tidak diketahui"}`;
+        resultText.style.color = "red";
+      }
+    } catch (err) {
+      resultText.textContent = `❌ Error: ${err.message}`;
+      resultText.style.color = "red";
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = "SEND VIRUS";
+    }
+  });
+  // --- Number Track: buka overlay bila tekan kotak NUMBER TRACK ---
+const numberTrackBox = document.getElementById("numberTrackBox");
+const numberTrackOverlay = document.getElementById("numberTrackOverlay");
+const ntTrackNumber = document.getElementById("ntTrackNumber");
+const ntTrackBtn = document.getElementById("ntTrackBtn");
+const closeNumberTrack = document.getElementById("closeNumberTrack");
+const trackPopup = document.getElementById("trackPopup");
+const trackResult = document.getElementById("trackResult");
+const closeTrackBtn = document.getElementById("closeTrack");
+
+// Buka overlay dan fokus input bila kotak diklik
+if (numberTrackBox) {
+  numberTrackBox.addEventListener("click", () => {
+    if (numberTrackOverlay) numberTrackOverlay.classList.add("active");
+    // beri sedikit delay supaya overlay selesai animasi sebelum fokus
+    setTimeout(() => {
+      if (ntTrackNumber) {
+        ntTrackNumber.value = ""; // kosongkan jika mahu
+        ntTrackNumber.focus();
+      }
+    }, 120);
+  });
+}
+
+// Tutup overlay bila tekan back
+if (closeNumberTrack) {
+  closeNumberTrack.addEventListener("click", () => {
+    numberTrackOverlay.classList.remove("active");
+  });
+}
+
+// Fungsi bantu: hasilkan HTML result sama logik macam yang sedia ada
+function buildTrackHtml(num) {
+  const now = new Date();
+  const indoRegions = [
+    "Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung",
+    "Kepulauan Bangka Belitung","Kepulauan Riau","DKI Jakarta","Jawa Barat","Jawa Tengah","DI Yogyakarta",
+    "Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat",
+    "Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara",
+    "Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat",
+    "Maluku","Maluku Utara","Papua Barat","Papua Selatan","Papua Tengah","Papua Pegunungan","Papua"
+  ];
+  const malaysiaRegions = [
+    "Johor","Kedah","Kelantan","Melaka","Negeri Sembilan","Pahang","Perak","Perlis",
+    "Pulau Pinang","Sabah","Sarawak","Selangor","Terengganu","Wilayah Persekutuan Kuala Lumpur",
+    "Wilayah Persekutuan Putrajaya","Wilayah Persekutuan Labuan"
+  ];
+
+  function randomTemp() { return Math.floor(Math.random() * 10) + 25; }
+
+  let html = `<h3>TRACKING TARGET ‼️</h3>`;
+  if (!num) {
+    html += `<div>❗ Sila masukkan nombor terlebih dahulu.</div>`;
+    return html;
+  }
+
+  // normalkan: boleh mengandungi + atau tidak — kita cek prefix '62' atau '60' (tanpa +)
+  const clean = num.replace(/^\+/, "").trim();
+
+  if (clean.startsWith("62")) {
+    const wilayah = indoRegions[Math.floor(Math.random() * indoRegions.length)];
+    const time = new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Jakarta" });
+    const suhu = randomTemp();
+    html += `
+      <div>🌍 <b>WILAYAH:</b> ${wilayah}</div>
+      <div>🔗 <b>LINK:</b> <a href="https://maps.google.com/?q=${encodeURIComponent(wilayah)}" target="_blank">Klik di sini</a></div>
+      <div>⏰ <b>JAM:</b> ${time}</div>
+      <div>🌡️ <b>SUHU:</b> ${suhu}°C</div>
+      <div>🏳️ <b>NEGARA:</b> 🇮🇩 Indonesia</div>
+    `;
+  } else if (clean.startsWith("60")) {
+    const wilayah = malaysiaRegions[Math.floor(Math.random() * malaysiaRegions.length)];
+    const time = new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Kuala_Lumpur" });
+    const suhu = randomTemp();
+    html += `
+      <div>🌍 <b>WILAYAH:</b> ${wilayah}</div>
+      <div>🔗 <b>LINK:</b> <a href="https://maps.google.com/?q=${encodeURIComponent(wilayah)}" target="_blank">Klik di sini</a></div>
+      <div>⏰ <b>JAM:</b> ${time}</div>
+      <div>🌡️ <b>SUHU:</b> ${suhu}°C</div>
+      <div>🏳️ <b>NEGARA:</b> 🇲🇾 Malaysia</div>
+    `;
+  } else {
+    html += `
+      <div>🌍 <b>WILAYAH:</b> Tidak Dikenal</div>
+      <div>🔗 <b>LINK:</b> -</div>
+      <div>⏰ <b>JAM:</b> ${now.toLocaleTimeString()}</div>
+      <div>🌡️ <b>SUHU:</b> -</div>
+      <div>🏳️ <b>NEGARA:</b> 🌐 Unknown</div>
+    `;
+  }
+  return html;
+}
+
+// Handler untuk butang TRACKING pada overlay Number Track
+if (ntTrackBtn) {
+  ntTrackBtn.addEventListener("click", () => {
+    const num = ntTrackNumber.value.trim();
+    if (!num) {
+      // tunjukkan mesej ringkas dekat input jika kosong
+      ntTrackNumber.focus();
+      ntTrackNumber.style.boxShadow = "0 0 0 3px rgba(255,165,0,0.18)";
+      setTimeout(() => ntTrackNumber.style.boxShadow = "", 900);
+      return;
+    }
+
+    // buat HTML result dan tunjuk popup
+    if (trackResult) {
+      trackResult.innerHTML = buildTrackHtml(num);
+    }
+    if (trackPopup) trackPopup.style.display = "flex";
+    // optionally tutup overlay selepas track
+    numberTrackOverlay.classList.remove("active");
+  });
+}
+
+// Tutup popup TRACKING bila klik BACK di popup
+if (closeTrackBtn) {
+  closeTrackBtn.addEventListener("click", () => {
+    if (trackPopup) trackPopup.style.display = "none";
+  });
+}
+
+// === IP Track Overlay ===
+const ipTrackBox = document.getElementById("ipTrack");
+const ipTrackOverlay = document.getElementById("ipTrackOverlay");
+const ipTrackInput = document.getElementById("ipTrackInput");
+const ipTrackBtn = document.getElementById("ipTrackBtn");
+const closeIpTrack = document.getElementById("closeIpTrack");
+
+// buka overlay bila klik kotak IP TRACK
+if (ipTrackBox) {
+  ipTrackBox.addEventListener("click", () => {
+    ipTrackOverlay.classList.add("active");
+    setTimeout(() => {
+      ipTrackInput.value = "";
+      ipTrackInput.focus();
+    }, 150);
+  });
+}
+
+// tutup overlay
+if (closeIpTrack) {
+  closeIpTrack.addEventListener("click", () => {
+    ipTrackOverlay.classList.remove("active");
+  });
+}
+
+// fungsi hasilkan result IP
+function buildIpResult(ip) {
+  if (!ip) return `<div>❗ Sila masukkan IP dahulu.</div>`;
+
+  // senarai negara & bandar random
+  const regions = [
+    {country:"🇲🇾 Malaysia", city:"Kuala Lumpur"},
+    {country:"🇮🇩 Indonesia", city:"Jakarta"},
+    {country:"🇸🇬 Singapore", city:"Singapore"},
+    {country:"🇹🇭 Thailand", city:"Bangkok"},
+    {country:"🇵🇭 Philippines", city:"Manila"},
+    {country:"🇻🇳 Vietnam", city:"Hanoi"},
+    {country:"🇺🇸 United States", city:"Los Angeles"},
+    {country:"🇮🇳 India", city:"Mumbai"}
+  ];
+  const r = regions[Math.floor(Math.random()*regions.length)];
+  const ispList = ["TMNet", "Indihome", "Maxis", "Telkomsel", "Starlink", "CelcomDigi"];
+  const isp = ispList[Math.floor(Math.random()*ispList.length)];
+  const time = new Date().toLocaleTimeString();
+  const lat = (Math.random()*180-90).toFixed(4);
+  const lon = (Math.random()*360-180).toFixed(4);
+
+  return `
+    <h3>IP TRACK RESULT 🌍</h3>
+    <div>💻 <b>IP:</b> ${ip}</div>
+    <div>🏙️ <b>City:</b> ${r.city}</div>
+    <div>🌐 <b>Country:</b> ${r.country}</div>
+    <div>🏢 <b>ISP:</b> ${isp}</div>
+    <div>🕓 <b>Time:</b> ${time}</div>
+    <div>📍 <b>Coordinates:</b> ${lat}, ${lon}</div>
+    <div>🔗 <b>Maps:</b> <a href="https://maps.google.com/?q=${lat},${lon}" target="_blank">Open in Google Maps</a></div>
+  `;
+}
+
+// bila tekan butang TRACKING
+if (ipTrackBtn) {
+  ipTrackBtn.addEventListener("click", () => {
+    const ip = ipTrackInput.value.trim();
+    if (!ip) {
+      ipTrackInput.focus();
+      ipTrackInput.style.boxShadow = "0 0 0 3px rgba(255,165,0,0.18)";
+      setTimeout(() => ipTrackInput.style.boxShadow = "", 800);
+      return;
+    }
+
+    trackResult.innerHTML = buildIpResult(ip);
+    trackPopup.style.display = "flex";
+    ipTrackOverlay.classList.remove("active");
+  });
+}
+
+// === GET CODE Overlay ===
+const getCodeBox = document.getElementById("spamNgl");
+const getCodeOverlay = document.getElementById("getCodeOverlay");
+const getCodeInput = document.getElementById("getCodeInput");
+const getCodeBtn = document.getElementById("getCodeBtn");
+const codeResult = document.getElementById("codeResult");
+const copyCodeBtn = document.getElementById("copyCodeBtn");
+const closeGetCode = document.getElementById("closeGetCode");
+
+// Buka overlay bila klik kotak GET CODE
+if (getCodeBox) {
+  getCodeBox.addEventListener("click", () => {
+    getCodeOverlay.classList.add("active");
+    setTimeout(() => {
+      getCodeInput.value = "";
+      codeResult.style.display = "none";
+      copyCodeBtn.style.display = "none";
+      getCodeInput.focus();
+    }, 150);
+  });
+}
+
+// Tutup overlay
+if (closeGetCode) {
+  closeGetCode.addEventListener("click", () => {
+    getCodeOverlay.classList.remove("active");
+  });
+}
+
+// Bila tekan GET CODE
+if (getCodeBtn) {
+  getCodeBtn.addEventListener("click", async () => {
+    const url = getCodeInput.value.trim();
+    if (!url) {
+      getCodeInput.focus();
+      getCodeInput.style.boxShadow = "0 0 0 3px rgba(255,165,0,0.2)";
+      setTimeout(() => getCodeInput.style.boxShadow = "", 800);
+      return;
+    }
+
+    getCodeBtn.disabled = true;
+    getCodeBtn.textContent = "FETCHING...";
+    codeResult.style.display = "none";
+    copyCodeBtn.style.display = "none";
+
+    try {
+      // Ambil HTML website — guna CORS proxy untuk demo
+      const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error("Cannot fetch site");
+      const html = await res.text();
+
+      codeResult.textContent = html;
+      codeResult.style.display = "block";
+      copyCodeBtn.style.display = "inline-block";
+    } catch (err) {
+      codeResult.textContent = `❌ Error: ${err.message}`;
+      codeResult.style.display = "block";
+    } finally {
+      getCodeBtn.disabled = false;
+      getCodeBtn.textContent = "GET CODE";
+    }
+  });
+}
+
+// Bila tekan COPY CODE
+if (copyCodeBtn) {
+  copyCodeBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(codeResult.textContent).then(() => {
+      copyCodeBtn.textContent = "COPIED ✅";
+      setTimeout(() => (copyCodeBtn.textContent = "COPY CODE"), 1200);
+    });
+  });
+}
+
+  function showPopup() {
+    const popup = document.getElementById("popup");
+    popup.style.display = "block";
+    
+    // Hilang selepas 5 saat
+    setTimeout(() => {
+      popup.style.display = "none";
+    }, 5000);
+  }
+
+// === BUY PAGE TOGGLE ===
+const buyPage = document.getElementById("buyPage");
+const openBuyPage = document.getElementById("openBuyPage");
+const closeBuyPage = document.getElementById("closeBuyPage");
+
+if (openBuyPage && buyPage && keyGate) {
+  openBuyPage.addEventListener("click", () => {
+    keyGate.querySelector(".video-container").style.display = "none";
+    buyPage.style.display = "flex";
+  });
+}
+
+if (closeBuyPage && buyPage && keyGate) {
+  closeBuyPage.addEventListener("click", () => {
+    keyGate.querySelector(".video-container").style.display = "block";
+    buyPage.style.display = "none";
+  });
+}
+
+</script>
+</body>
+</html>
